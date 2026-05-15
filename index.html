@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Freimaurer-Alphabet</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<main class="app">
+  <header>
+    <h1>Freimaurer-Alphabet</h1>
+    <p>Verschlüsseln und Entschlüsseln mit der Freimaurer-Geheimschrift</p>
+  </header>
+
+  <section class="legend">
+    <img src="img/Pigpen.svg.png" alt="Freimaurer-Alphabet Übersicht">
+    <img src="img/FreimaurerABC.svg.png" alt="Freimaurer-Alphabet Zeichen">
+  </section>
+
+  <section class="mode-switch">
+    <button id="encryptBtn" class="active">Verschlüsseln</button>
+    <button id="decryptBtn">Entschlüsseln</button>
+  </section>
+
+  <section class="work-area">
+    <div>
+      <h2 id="inputTitle">Klartext</h2>
+      <textarea id="inputText" placeholder="Schreibe hier deinen Klartext ..."></textarea>
+    </div>
+
+    <div>
+      <h2 id="outputTitle">Geheimschrift</h2>
+      <div id="outputText" class="output"></div>
+    </div>
+  </section>
+
+  <section id="symbolKeyboardSection" class="symbol-keyboard hidden">
+    <h2>Freimaurer-Tastatur</h2>
+    <p class="hint">Klicke auf die Zeichen, um die Geheimschrift zu entschlüsseln.</p>
+    <div id="symbolKeyboard"></div>
+  </section>
+
+  <section class="controls">
+    <button id="spaceBtn">Leerzeichen</button>
+    <button id="backBtn">← Löschen</button>
+    <button id="clearBtn">Alles löschen</button>
+    <button id="copyBtn">Ergebnis kopieren</button>
+  </section>
+</main>
+
+<script src="app.js"></script>
+</body>
+</html>
