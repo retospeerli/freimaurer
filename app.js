@@ -60,7 +60,9 @@ const backBtn = document.getElementById("backBtn");
 const clearBtn = document.getElementById("clearBtn");
 const copyBtn = document.getElementById("copyBtn");
 
+
 function normalizeText(text) {
+
   return text
     .toUpperCase()
     .replaceAll("Ä","AE")
@@ -69,7 +71,9 @@ function normalizeText(text) {
     .replaceAll("ß","SS");
 }
 
+
 function createSvgLine(x1, y1, x2, y2) {
+
   const line = document.createElementNS(
     "http://www.w3.org/2000/svg",
     "line"
@@ -87,27 +91,34 @@ function createSvgLine(x1, y1, x2, y2) {
   return line;
 }
 
-function createSvgDot() {
+
+function createSvgDot(cx = 50, cy = 50) {
+
   const dot = document.createElementNS(
     "http://www.w3.org/2000/svg",
     "circle"
   );
 
-  dot.setAttribute("cx", "50");
-  dot.setAttribute("cy", "50");
-  dot.setAttribute("r", "7");
+  dot.setAttribute("cx", String(cx));
+  dot.setAttribute("cy", String(cy));
+
+  dot.setAttribute("r", "6.5");
+
   dot.setAttribute("fill", "#111");
 
   return dot;
 }
 
+
 function createSymbol(letter) {
+
   const wrapper = document.createElement("span");
   wrapper.className = "pigpen-symbol";
 
   const type = pigpenType[letter];
 
   if (!type) {
+
     wrapper.textContent = letter;
     return wrapper;
   }
@@ -118,264 +129,380 @@ function createSymbol(letter) {
   );
 
   svg.setAttribute("viewBox", "0 0 100 100");
-  svg.setAttribute("width", "100");
-  svg.setAttribute("height", "100");
+
 
   const hasDot = type.includes("dot");
   const clean = type.replace("-dot", "");
 
+
   const gridTypes = [
-    "br", "blr", "bl",
-    "tbr", "tblr", "tbl",
-    "tr", "tlr", "tl"
+    "br","blr","bl",
+    "tbr","tblr","tbl",
+    "tr","tlr","tl"
   ];
 
+
   if (gridTypes.includes(clean)) {
+
     if (clean.includes("t")) {
-      svg.appendChild(createSvgLine(20, 20, 80, 20));
+      svg.appendChild(
+        createSvgLine(20,20,80,20)
+      );
     }
 
     if (clean.includes("b")) {
-      svg.appendChild(createSvgLine(20, 80, 80, 80));
+      svg.appendChild(
+        createSvgLine(20,80,80,80)
+      );
     }
 
     if (clean.includes("l")) {
-      svg.appendChild(createSvgLine(20, 20, 20, 80));
+      svg.appendChild(
+        createSvgLine(20,20,20,80)
+      );
     }
 
     if (clean.includes("r")) {
-      svg.appendChild(createSvgLine(80, 20, 80, 80));
+      svg.appendChild(
+        createSvgLine(80,20,80,80)
+      );
     }
   }
 
+
   if (clean === "angle-down") {
-    svg.appendChild(createSvgLine(20, 20, 50, 80));
-    svg.appendChild(createSvgLine(80, 20, 50, 80));
+
+    svg.appendChild(
+      createSvgLine(20,20,50,80)
+    );
+
+    svg.appendChild(
+      createSvgLine(80,20,50,80)
+    );
   }
+
 
   if (clean === "angle-up") {
-    svg.appendChild(createSvgLine(20, 80, 50, 20));
-    svg.appendChild(createSvgLine(80, 80, 50, 20));
+
+    svg.appendChild(
+      createSvgLine(20,80,50,20)
+    );
+
+    svg.appendChild(
+      createSvgLine(80,80,50,20)
+    );
   }
+
 
   if (clean === "angle-right") {
-    svg.appendChild(createSvgLine(20, 20, 80, 50));
-    svg.appendChild(createSvgLine(20, 80, 80, 50));
+
+    svg.appendChild(
+      createSvgLine(20,20,80,50)
+    );
+
+    svg.appendChild(
+      createSvgLine(20,80,80,50)
+    );
   }
+
 
   if (clean === "angle-left") {
-    svg.appendChild(createSvgLine(80, 20, 20, 50));
-    svg.appendChild(createSvgLine(80, 80, 20, 50));
+
+    svg.appendChild(
+      createSvgLine(80,20,20,50)
+    );
+
+    svg.appendChild(
+      createSvgLine(80,80,20,50)
+    );
   }
+
 
   if (hasDot) {
-    svg.appendChild(createSvgDot());
+
+    if (clean === "angle-down") {
+
+      svg.appendChild(
+        createSvgDot(50,34)
+      );
+    }
+
+    else if (clean === "angle-up") {
+
+      svg.appendChild(
+        createSvgDot(50,66)
+      );
+    }
+
+    else if (clean === "angle-right") {
+
+      svg.appendChild(
+        createSvgDot(38,50)
+      );
+    }
+
+    else if (clean === "angle-left") {
+
+      svg.appendChild(
+        createSvgDot(62,50)
+      );
+    }
+
+    else {
+
+      svg.appendChild(
+        createSvgDot()
+      );
+    }
   }
 
+
   wrapper.appendChild(svg);
+
   return wrapper;
 }
 
+
+
 function encryptText() {
+
   outputText.innerHTML = "";
 
-  const text = normalizeText(inputText.value);
+  const text = normalizeText(
+    inputText.value
+  );
+
 
   for (const char of text) {
+
     if (pigpenType[char]) {
-      outputText.appendChild(createSymbol(char));
-    } else if (char === " ") {
-      outputText.appendChild(document.createTextNode("   "));
-    } else if (char === "\n") {
-      outputText.appendChild(document.createElement("br"));
+
+      outputText.appendChild(
+        createSymbol(char)
+      );
+    }
+
+    else if (char === " ") {
+
+      outputText.appendChild(
+        document.createTextNode("   ")
+      );
+    }
+
+    else if (char === "\n") {
+
+      outputText.appendChild(
+        document.createElement("br")
+      );
     }
   }
 }
 
+
+
 function decryptText() {
-  outputText.textContent = decryptLetters.join("");
+
+  outputText.textContent =
+    decryptLetters.join("");
 }
 
+
+
 function updateOutput() {
+
   if (mode === "encrypt") {
+
     encryptText();
-  } else {
+  }
+
+  else {
+
     decryptText();
   }
 }
 
+
+
 function setMode(newMode) {
+
   mode = newMode;
 
-  encryptBtn.classList.toggle("active", mode === "encrypt");
-  decryptBtn.classList.toggle("active", mode === "decrypt");
+
+  encryptBtn.classList.toggle(
+    "active",
+    mode === "encrypt"
+  );
+
+  decryptBtn.classList.toggle(
+    "active",
+    mode === "decrypt"
+  );
+
 
   if (mode === "encrypt") {
-    inputTitle.textContent = "Klartext";
-    outputTitle.textContent = "Geheimschrift";
-    inputText.placeholder = "Schreibe hier deinen Klartext ...";
+
+    inputTitle.textContent =
+      "Klartext";
+
+    outputTitle.textContent =
+      "Geheimschrift";
+
     inputText.disabled = false;
-    symbolKeyboardSection.classList.add("hidden");
-  } else {
-    inputTitle.textContent = "Geheimschrift-Eingabe";
-    outputTitle.textContent = "Klartext";
-    inputText.value = "";
-    inputText.placeholder = "Benutze unten die Freimaurer-Tastatur ...";
-    inputText.disabled = true;
-    symbolKeyboardSection.classList.remove("hidden");
-    decryptLetters = [];
+
+    symbolKeyboardSection.classList.add(
+      "hidden"
+    );
   }
+
+  else {
+
+    inputTitle.textContent =
+      "Geheimschrift-Eingabe";
+
+    outputTitle.textContent =
+      "Klartext";
+
+    inputText.value = "";
+
+    inputText.disabled = true;
+
+    decryptLetters = [];
+
+    symbolKeyboardSection.classList.remove(
+      "hidden"
+    );
+  }
+
 
   outputText.innerHTML = "";
 }
 
+
+
 function buildSymbolKeyboard() {
+
   symbolKeyboard.innerHTML = "";
 
+
   keyboardLayout.forEach(row => {
-    const rowDiv = document.createElement("div");
-    rowDiv.className = "keyboard-row";
+
+    const rowDiv =
+      document.createElement("div");
+
+    rowDiv.className =
+      "keyboard-row";
+
 
     row.forEach(letter => {
-      const normalized = normalizeText(letter);
 
-      const button = document.createElement("button");
-      button.className = "key";
+      const normalized =
+        normalizeText(letter);
 
-      button.appendChild(createSymbol(normalized[0]));
 
-      button.addEventListener("click", () => {
-        playClickSound();
+      const button =
+        document.createElement("button");
 
-        for (const char of normalized) {
-          decryptLetters.push(char);
+      button.className =
+        "key";
+
+
+      button.appendChild(
+        createSymbol(normalized[0])
+      );
+
+
+      button.addEventListener(
+        "click",
+        () => {
+
+          playClickSound();
+
+
+          for (
+            const char
+            of normalized
+          ) {
+
+            decryptLetters.push(
+              char
+            );
+          }
+
+
+          inputText.value =
+            decryptLetters.join("");
+
+
+          updateOutput();
         }
+      );
 
-        inputText.value = decryptLetters.join("");
-        updateOutput();
-      });
 
-      rowDiv.appendChild(button);
+      rowDiv.appendChild(
+        button
+      );
     });
 
-    symbolKeyboard.appendChild(rowDiv);
+
+    symbolKeyboard.appendChild(
+      rowDiv
+    );
   });
 }
 
+
+
 function playClickSound() {
+
   const ctx = new (
     window.AudioContext ||
     window.webkitAudioContext
   )();
 
-  const osc = ctx.createOscillator();
-  const gain = ctx.createGain();
+
+  const osc =
+    ctx.createOscillator();
+
+  const gain =
+    ctx.createGain();
+
 
   osc.frequency.value = 520;
+
   gain.gain.value = 0.05;
+
 
   osc.connect(gain);
   gain.connect(ctx.destination);
 
+
   osc.start();
-  osc.stop(ctx.currentTime + 0.05);
+
+  osc.stop(
+    ctx.currentTime + 0.05
+  );
 }
 
-inputText.addEventListener("input", updateOutput);
 
-encryptBtn.addEventListener("click", () => setMode("encrypt"));
-decryptBtn.addEventListener("click", () => setMode("decrypt"));
 
-spaceBtn.addEventListener("click", () => {
-  playClickSound();
+inputText.addEventListener(
+  "input",
+  updateOutput
+);
 
-  if (mode === "encrypt") {
-    inputText.value += " ";
-  } else {
-    decryptLetters.push(" ");
-    inputText.value = decryptLetters.join("");
-  }
 
-  updateOutput();
-});
+encryptBtn.addEventListener(
+  "click",
+  () => setMode("encrypt")
+);
 
-backBtn.addEventListener("click", () => {
-  playClickSound();
 
-  if (mode === "encrypt") {
-    inputText.value = inputText.value.slice(0, -1);
-  } else {
-    decryptLetters.pop();
-    inputText.value = decryptLetters.join("");
-  }
+decryptBtn.addEventListener(
+  "click",
+  () => setMode("decrypt")
+);
 
-  updateOutput();
-});
-
-clearBtn.addEventListener("click", () => {
-  playClickSound();
-
-  inputText.value = "";
-  decryptLetters = [];
-  outputText.innerHTML = "";
-});
-
-copyBtn.addEventListener("click", async () => {
-  playClickSound();
-
-  const textToCopy =
-    mode === "encrypt"
-      ? normalizeText(inputText.value)
-      : decryptLetters.join("");
-
-  try {
-    await navigator.clipboard.writeText(textToCopy);
-    copyBtn.textContent = "Kopiert!";
-
-    setTimeout(() => {
-      copyBtn.textContent = "Ergebnis kopieren";
-    }, 1200);
-  } catch {
-    alert("Kopieren nicht möglich.");
-  }
-});
-
-document.addEventListener("keydown", event => {
-  if (mode !== "decrypt") return;
-
-  const key = event.key.toUpperCase();
-
-  if (/^[A-ZÄÖÜß]$/.test(key)) {
-    event.preventDefault();
-
-    const normalized = normalizeText(key);
-
-    for (const char of normalized) {
-      decryptLetters.push(char);
-    }
-
-    inputText.value = decryptLetters.join("");
-    updateOutput();
-  }
-
-  if (event.key === "Backspace") {
-    event.preventDefault();
-
-    decryptLetters.pop();
-    inputText.value = decryptLetters.join("");
-
-    updateOutput();
-  }
-
-  if (event.key === " ") {
-    event.preventDefault();
-
-    decryptLetters.push(" ");
-    inputText.value = decryptLetters.join("");
-
-    updateOutput();
-  }
-});
 
 buildSymbolKeyboard();
+
 setMode("encrypt");
