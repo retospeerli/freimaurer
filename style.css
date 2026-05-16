@@ -1,143 +1,381 @@
-*{
-  box-sizing:border-box;
+const keyboardLayout = [
+  ["Q","W","E","R","T","Z","U","I","O","P","Ü"],
+  ["A","S","D","F","G","H","J","K","L","Ö","Ä"],
+  ["Y","X","C","V","B","N","M"]
+];
+
+const pigpenType = {
+  A:"br",
+  B:"blr",
+  C:"bl",
+
+  D:"tbr",
+  E:"tblr",
+  F:"tbl",
+
+  G:"tr",
+  H:"tlr",
+  I:"tl",
+
+  J:"br-dot",
+  K:"blr-dot",
+  L:"bl-dot",
+
+  M:"tbr-dot",
+  N:"tblr-dot",
+  O:"tbl-dot",
+
+  P:"tr-dot",
+  Q:"tlr-dot",
+  R:"tl-dot",
+
+  S:"angle-down",
+  T:"angle-right",
+  U:"angle-left",
+  V:"angle-up",
+
+  W:"angle-down-dot",
+  X:"angle-right-dot",
+  Y:"angle-left-dot",
+  Z:"angle-up-dot"
+};
+
+let mode = "encrypt";
+let decryptLetters = [];
+
+const inputText = document.getElementById("inputText");
+const outputText = document.getElementById("outputText");
+
+const encryptBtn = document.getElementById("encryptBtn");
+const decryptBtn = document.getElementById("decryptBtn");
+
+const inputTitle = document.getElementById("inputTitle");
+const outputTitle = document.getElementById("outputTitle");
+
+const symbolKeyboardSection = document.getElementById("symbolKeyboardSection");
+const symbolKeyboard = document.getElementById("symbolKeyboard");
+
+const spaceBtn = document.getElementById("spaceBtn");
+const backBtn = document.getElementById("backBtn");
+const clearBtn = document.getElementById("clearBtn");
+const copyBtn = document.getElementById("copyBtn");
+
+function normalizeText(text) {
+  return text
+    .toUpperCase()
+    .replaceAll("Ä","AE")
+    .replaceAll("Ö","OE")
+    .replaceAll("Ü","UE")
+    .replaceAll("ß","SS");
 }
 
-body{
+function createSvgLine(x1, y1, x2, y2) {
+  const line = document.createElementNS(
+    "http://www.w3.org/2000/svg",
+    "line"
+  );
 
-  margin:0;
+  line.setAttribute("x1", x1);
+  line.setAttribute("y1", y1);
+  line.setAttribute("x2", x2);
+  line.setAttribute("y2", y2);
 
-  font-family:Arial, Helvetica, sans-serif;
+  line.setAttribute("stroke", "#111");
+  line.setAttribute("stroke-width", "9");
+  line.setAttribute("stroke-linecap", "square");
 
-  background:#f3f0e8;
-
-  color:#111;
+  return line;
 }
 
+function createSvgDot() {
+  const dot = document.createElementNS(
+    "http://www.w3.org/2000/svg",
+    "circle"
+  );
 
-.app{
+  dot.setAttribute("cx", "50");
+  dot.setAttribute("cy", "50");
+  dot.setAttribute("r", "7");
+  dot.setAttribute("fill", "#111");
 
-  max-width:1200px;
-
-  margin:auto;
-
-  padding:24px;
+  return dot;
 }
 
+function createSymbol(letter) {
+  const wrapper = document.createElement("span");
+  wrapper.className = "pigpen-symbol";
 
-header{
+  const type = pigpenType[letter];
 
-  text-align:center;
-
-  margin-bottom:20px;
-}
-
-
-.legend{
-
-  display:grid;
-
-  gap:16px;
-
-  background:white;
-
-  padding:16px;
-
-  border-radius:18px;
-
-  margin-bottom:20px;
-}
-
-
-.legend img{
-
-  width:100%;
-
-  max-height:260px;
-
-  object-fit:contain;
-}
-
-
-.work-area{
-
-  display:grid;
-
-  grid-template-columns:1fr 1fr;
-
-  gap:20px;
-
-  margin-bottom:20px;
-}
-
-
-textarea,
-.output{
-
-  width:100%;
-
-  min-height:180px;
-
-  border:3px solid #111;
-
-  border-radius:16px;
-
-  background:white;
-
-  padding:16px;
-
-  font-size:1.5rem;
-}
-
-
-.output{
-
-  white-space:pre-wrap;
-}
-
-
-/* DAS WICHTIGE */
-
-
-.pigpen-symbol{
-
-  display:inline-flex;
-
-  justify-content:center;
-
-  align-items:center;
-
-  width:44px;
-
-  height:44px;
-
-  margin:2px 4px;
-
-  vertical-align:middle;
-}
-
-
-.pigpen-symbol svg{
-
-  width:100%;
-
-  height:100%;
-
-  display:block;
-}
-
-
-
-@media(max-width:800px){
-
-  .work-area{
-
-    grid-template-columns:1fr;
+  if (!type) {
+    wrapper.textContent = letter;
+    return wrapper;
   }
 
+  const svg = document.createElementNS(
+    "http://www.w3.org/2000/svg",
+    "svg"
+  );
 
-  .pigpen-symbol{
+  svg.setAttribute("viewBox", "0 0 100 100");
+  svg.setAttribute("width", "100");
+  svg.setAttribute("height", "100");
 
-    width:38px;
-    height:38px;
+  const hasDot = type.includes("dot");
+  const clean = type.replace("-dot", "");
+
+  const gridTypes = [
+    "br", "blr", "bl",
+    "tbr", "tblr", "tbl",
+    "tr", "tlr", "tl"
+  ];
+
+  if (gridTypes.includes(clean)) {
+    if (clean.includes("t")) {
+      svg.appendChild(createSvgLine(20, 20, 80, 20));
+    }
+
+    if (clean.includes("b")) {
+      svg.appendChild(createSvgLine(20, 80, 80, 80));
+    }
+
+    if (clean.includes("l")) {
+      svg.appendChild(createSvgLine(20, 20, 20, 80));
+    }
+
+    if (clean.includes("r")) {
+      svg.appendChild(createSvgLine(80, 20, 80, 80));
+    }
+  }
+
+  if (clean === "angle-down") {
+    svg.appendChild(createSvgLine(20, 20, 50, 80));
+    svg.appendChild(createSvgLine(80, 20, 50, 80));
+  }
+
+  if (clean === "angle-up") {
+    svg.appendChild(createSvgLine(20, 80, 50, 20));
+    svg.appendChild(createSvgLine(80, 80, 50, 20));
+  }
+
+  if (clean === "angle-right") {
+    svg.appendChild(createSvgLine(20, 20, 80, 50));
+    svg.appendChild(createSvgLine(20, 80, 80, 50));
+  }
+
+  if (clean === "angle-left") {
+    svg.appendChild(createSvgLine(80, 20, 20, 50));
+    svg.appendChild(createSvgLine(80, 80, 20, 50));
+  }
+
+  if (hasDot) {
+    svg.appendChild(createSvgDot());
+  }
+
+  wrapper.appendChild(svg);
+  return wrapper;
+}
+
+function encryptText() {
+  outputText.innerHTML = "";
+
+  const text = normalizeText(inputText.value);
+
+  for (const char of text) {
+    if (pigpenType[char]) {
+      outputText.appendChild(createSymbol(char));
+    } else if (char === " ") {
+      outputText.appendChild(document.createTextNode("   "));
+    } else if (char === "\n") {
+      outputText.appendChild(document.createElement("br"));
+    }
   }
 }
+
+function decryptText() {
+  outputText.textContent = decryptLetters.join("");
+}
+
+function updateOutput() {
+  if (mode === "encrypt") {
+    encryptText();
+  } else {
+    decryptText();
+  }
+}
+
+function setMode(newMode) {
+  mode = newMode;
+
+  encryptBtn.classList.toggle("active", mode === "encrypt");
+  decryptBtn.classList.toggle("active", mode === "decrypt");
+
+  if (mode === "encrypt") {
+    inputTitle.textContent = "Klartext";
+    outputTitle.textContent = "Geheimschrift";
+    inputText.placeholder = "Schreibe hier deinen Klartext ...";
+    inputText.disabled = false;
+    symbolKeyboardSection.classList.add("hidden");
+  } else {
+    inputTitle.textContent = "Geheimschrift-Eingabe";
+    outputTitle.textContent = "Klartext";
+    inputText.value = "";
+    inputText.placeholder = "Benutze unten die Freimaurer-Tastatur ...";
+    inputText.disabled = true;
+    symbolKeyboardSection.classList.remove("hidden");
+    decryptLetters = [];
+  }
+
+  outputText.innerHTML = "";
+}
+
+function buildSymbolKeyboard() {
+  symbolKeyboard.innerHTML = "";
+
+  keyboardLayout.forEach(row => {
+    const rowDiv = document.createElement("div");
+    rowDiv.className = "keyboard-row";
+
+    row.forEach(letter => {
+      const normalized = normalizeText(letter);
+
+      const button = document.createElement("button");
+      button.className = "key";
+
+      button.appendChild(createSymbol(normalized[0]));
+
+      button.addEventListener("click", () => {
+        playClickSound();
+
+        for (const char of normalized) {
+          decryptLetters.push(char);
+        }
+
+        inputText.value = decryptLetters.join("");
+        updateOutput();
+      });
+
+      rowDiv.appendChild(button);
+    });
+
+    symbolKeyboard.appendChild(rowDiv);
+  });
+}
+
+function playClickSound() {
+  const ctx = new (
+    window.AudioContext ||
+    window.webkitAudioContext
+  )();
+
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+
+  osc.frequency.value = 520;
+  gain.gain.value = 0.05;
+
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+
+  osc.start();
+  osc.stop(ctx.currentTime + 0.05);
+}
+
+inputText.addEventListener("input", updateOutput);
+
+encryptBtn.addEventListener("click", () => setMode("encrypt"));
+decryptBtn.addEventListener("click", () => setMode("decrypt"));
+
+spaceBtn.addEventListener("click", () => {
+  playClickSound();
+
+  if (mode === "encrypt") {
+    inputText.value += " ";
+  } else {
+    decryptLetters.push(" ");
+    inputText.value = decryptLetters.join("");
+  }
+
+  updateOutput();
+});
+
+backBtn.addEventListener("click", () => {
+  playClickSound();
+
+  if (mode === "encrypt") {
+    inputText.value = inputText.value.slice(0, -1);
+  } else {
+    decryptLetters.pop();
+    inputText.value = decryptLetters.join("");
+  }
+
+  updateOutput();
+});
+
+clearBtn.addEventListener("click", () => {
+  playClickSound();
+
+  inputText.value = "";
+  decryptLetters = [];
+  outputText.innerHTML = "";
+});
+
+copyBtn.addEventListener("click", async () => {
+  playClickSound();
+
+  const textToCopy =
+    mode === "encrypt"
+      ? normalizeText(inputText.value)
+      : decryptLetters.join("");
+
+  try {
+    await navigator.clipboard.writeText(textToCopy);
+    copyBtn.textContent = "Kopiert!";
+
+    setTimeout(() => {
+      copyBtn.textContent = "Ergebnis kopieren";
+    }, 1200);
+  } catch {
+    alert("Kopieren nicht möglich.");
+  }
+});
+
+document.addEventListener("keydown", event => {
+  if (mode !== "decrypt") return;
+
+  const key = event.key.toUpperCase();
+
+  if (/^[A-ZÄÖÜß]$/.test(key)) {
+    event.preventDefault();
+
+    const normalized = normalizeText(key);
+
+    for (const char of normalized) {
+      decryptLetters.push(char);
+    }
+
+    inputText.value = decryptLetters.join("");
+    updateOutput();
+  }
+
+  if (event.key === "Backspace") {
+    event.preventDefault();
+
+    decryptLetters.pop();
+    inputText.value = decryptLetters.join("");
+
+    updateOutput();
+  }
+
+  if (event.key === " ") {
+    event.preventDefault();
+
+    decryptLetters.push(" ");
+    inputText.value = decryptLetters.join("");
+
+    updateOutput();
+  }
+});
+
+buildSymbolKeyboard();
+setMode("encrypt");
